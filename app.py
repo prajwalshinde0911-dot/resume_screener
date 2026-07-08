@@ -1,34 +1,55 @@
 import streamlit as st
+from core.ranker import rank_candidates
 from core.parser import extract_text
 from core.skill_extractor import extract_skills
-from core.matcher import compute_similarity
 
 st.set_page_config(page_title="AI Resume Screening System", layout="wide")
 st.title("📄 AI Resume Screening System")
 
-col1, col2 = st.columns(2)
+st.subheader("Job Description")
+jd_text = st.text_area("Paste the Job Description here", height=200)
 
-with col1:
-    st.subheader("Job Description")
-    jd_text = st.text_area("Paste the Job Description here", height=250)
+st.subheader("Upload Resumes")
+uploaded_files = st.file_uploader(
+    "Upload one or more resumes (PDF or DOCX)",
+    type=["pdf", "docx"],
+    accept_multiple_files=True
+)
 
-with col2:
-    st.subheader("Upload Resume")
-    uploaded_file = st.file_uploader("Upload a resume (PDF or DOCX)", type=["pdf", "docx"])
+if jd_text.strip() and uploaded_files:
+    with st.spinner("Analyzing resumes..."):
+        df = rank_candidates(jd_text, uploaded_files)
 
-if uploaded_file is not None and jd_text.strip():
-    resume_text = extract_text(uploaded_file, uploaded_file.name)
+    st.subheader("🏆 Candidate Ranking")
+    st.dataframe(df, use_container_width=True)
 
-    st.subheader("Extracted Resume Text")
-    st.text_area("Resume content", resume_text, height=200)
+    st.subheader("🔍 Candidate Detail")
+    candidate_names = df["Candidate"].tolist()
+    selected_name = st.selectbox("Select a candidate to view full details", candidate_names)
 
-    skills = extract_skills(resume_text)
-    st.subheader("Extracted Skills")
-    st.write(", ".join(skills) if skills else "No known skills detected.")
+    # Find the matching uploaded file object
+    selected_file = next(f for f in uploaded_files if f.name == selected_name)
+    selected_file.seek(0)  # reset file pointer before re-reading
 
-    score = compute_similarity(jd_text, resume_text)
-    st.subheader("Match Score")
-    st.metric(label="Semantic Match", value=f"{score}%")
+    resume_text = extract_text(selected_file, selected_file.name)
+    resume_skills = extract_skills(resume_text)
 
-elif uploaded_file is not None and not jd_text.strip():
-    st.warning("Please paste a Job Description above to calculate a match score.")
+    row = df[df["Candidate"] == selected_name].iloc[0]
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Final Score", f"{row['Final Score']}%")
+        st.metric("Semantic Match", f"{row['Semantic Match %']}%")
+        st.metric("Skill Match", f"{row['Skill Match %']}%")
+
+    with col2:
+        st.write("**Matched Skills:**", row["Matched Skills"])
+        st.write("**Missing Skills:**", row["Missing Skills"])
+
+    st.write("**All Extracted Skills:**", ", ".join(resume_skills) if resume_skills else "None detected")
+
+    st.subheader("Full Resume Text")
+    st.text_area("Extracted content", resume_text, height=300)
+
+elif uploaded_files and not jd_text.strip():
+    st.warning("Please paste a Job Description above to rank candidates.")
