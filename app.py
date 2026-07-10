@@ -32,11 +32,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- Session state setup ----------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# ---------- LOGIN PAGE ----------
 def login_page():
     st.title("🔐 Login")
     st.markdown('<p class="subtitle">AI Resume Screening System</p>', unsafe_allow_html=True)
@@ -55,16 +53,23 @@ def login_page():
 
     st.caption("Demo credentials — Username: `admin` | Password: `admin123`")
 
-# ---------- DASHBOARD ----------
 def dashboard_page():
-    st.title("🧠 AI Resume Screening System")
-    st.markdown('<p class="subtitle">Automated candidate screening powered by NLP & semantic AI matching</p>', unsafe_allow_html=True)
+    # ---------- Sidebar Settings ----------
+    with st.sidebar:
+        st.header("⚙️ Settings")
+        semantic_weight_pct = st.slider("Semantic Match Weight (%)", 0, 100, 60, step=5)
+        skill_weight_pct = 100 - semantic_weight_pct
+        st.caption(f"Skill Match Weight: {skill_weight_pct}%")
 
-    col1, col2 = st.columns([5, 1])
-    with col2:
+        show_ai_validation = st.checkbox("Show AI Validation (Gemini)", value=True)
+
+        st.divider()
         if st.button("Logout"):
             st.session_state.logged_in = False
             st.rerun()
+
+    st.title("🧠 AI Resume Screening System")
+    st.markdown('<p class="subtitle">Automated candidate screening powered by NLP & semantic AI matching</p>', unsafe_allow_html=True)
 
     with st.container(border=True):
         st.subheader("📋 Job Description")
@@ -81,7 +86,12 @@ def dashboard_page():
 
     if jd_text.strip() and uploaded_files:
         with st.spinner("🔍 Analyzing resumes..."):
-            df = rank_candidates(jd_text, uploaded_files)
+            df = rank_candidates(
+                jd_text,
+                uploaded_files,
+                semantic_weight=semantic_weight_pct / 100,
+                skill_weight=skill_weight_pct / 100
+            )
 
         with st.container(border=True):
             st.subheader("🏆 Candidate Ranking")
@@ -125,10 +135,11 @@ def dashboard_page():
             st.write("**⚠️ Missing Skills:**", row["Missing Skills"])
             st.write("**📌 All Extracted Skills:**", ", ".join(resume_skills) if resume_skills else "None detected")
 
-            with st.spinner("🤖 Getting AI validation..."):
-                validation = validate_match(jd_text, resume_text)
-            st.markdown("**🧠 AI Validation (Powered by Google Gemini):**")
-            st.info(validation)
+            if show_ai_validation:
+                with st.spinner("🤖 Getting AI validation..."):
+                    validation = validate_match(jd_text, resume_text)
+                st.markdown("**🧠 AI Validation (Powered by Google Gemini):**")
+                st.info(validation)
 
             with st.expander("📄 View Full Resume Text"):
                 st.text_area("Extracted content", resume_text, height=250, label_visibility="collapsed")
@@ -136,7 +147,6 @@ def dashboard_page():
     elif uploaded_files and not jd_text.strip():
         st.warning("Please paste a Job Description above to rank candidates.")
 
-# ---------- Router ----------
 if st.session_state.logged_in:
     dashboard_page()
 else:
