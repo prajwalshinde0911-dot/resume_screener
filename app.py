@@ -87,6 +87,14 @@ def dashboard_page():
             st.subheader("🏆 Candidate Ranking")
             st.dataframe(df, width="stretch")
 
+            csv_data = df.to_csv(index=True).encode("utf-8")
+            st.download_button(
+                label="⬇️ Download Ranking as CSV",
+                data=csv_data,
+                file_name="candidate_ranking.csv",
+                mime="text/csv"
+            )
+
         with st.container(border=True):
             st.subheader("📊 Analytics")
             tab1, tab2 = st.tabs(["Overall Score", "Score Breakdown"])
