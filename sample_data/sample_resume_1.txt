@@ -1,0 +1,19 @@
+Rahul Sharma
+rahul.sharma@email.com | +91 9876543210
+
+SKILLS
+Programming Languages: Python, SQL, Java
+Machine Learning:  Pandas, NumPy
+Data Visualization: Power BI, Matplotlib
+Tools: Git, GitHub, Jupyter Notebook
+
+EDUCATION
+B.Tech in Computer Science, ABC University
+CGPA: 8.7 (2021–2025)
+
+PROJECTS
+- Built a machine learning model to predict customer churn using scikit-learn
+- Created interactive dashboards in Power BI for sales data analysis
+
+CERTIFICATIONS
+- Data Science

@@ -1,0 +1,19 @@
+Job Title: Data Science Intern
+
+We are looking for a motivated Data Science Intern to join our team. 
+
+Responsibilities:
+- Analyze large datasets to extract meaningful insights
+- Build and evaluate machine learning models
+- Collaborate with the engineering team to deploy models into production
+
+Requirements:
+- Strong knowledge of Python and SQL
+- Experience with machine learning libraries such as scikit-learn or TensorFlow
+- Familiarity with data visualization tools like Power BI or Tableau
+- Understanding of statistics and data preprocessing techniques
+- Good communication and problem-solving skills
+
+Nice to have:
+- Experience with Git and version control
+- Exposure to cloud platforms like AWS or Azure

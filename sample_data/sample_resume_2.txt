@@ -1,0 +1,16 @@
+Priya Verma
+ +91 9123456780
+
+
+SKILLS
+Programming Languages: HTML, CSS, JavaScript
+Tools: MS Excel, Git, VS Code
+Soft Skills: Communication, Teamwork
+
+EDUCATION
+B.Sc in Computer Applications, XYZ College
+CGPA: 7.5 (2022–2025)
+
+PROJECTS
+- Built a personal portfolio website using HTML and CSS
+- Participated in a college-level hackathon focused on web development
